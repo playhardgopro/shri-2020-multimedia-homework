@@ -1,47 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Test streams</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="initVideo.js"></script>
-    <style>
-        .video {
-            width: 300px;
-            height: 200px;
-        }
-    </style>
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="video-wrapper">
+        <div class="video-container">
+          <video id="video-1" class="video" muted autoplay></video>
+        </div>
+      </div>
+      <div class="video-wrapper">
+        <div class="video-container">
+          <video id="video-2" class="video" muted autoplay></video>
+        </div>
+      </div>
+      <div class="video-wrapper">
+        <div class="video-container">
+          <video id="video-3" class="video" muted autoplay></video>
+        </div>
+      </div>
+      <div class="video-wrapper">
+        <div class="video-container">
+          <video id="video-4" class="video" muted autoplay></video>
+        </div>
+      </div>
+    </div>
 
-<video id="video-1" class="video" controls muted autoplay></video>
-<video id="video-2" class="video" controls muted autoplay></video>
-<br>
-<video id="video-3" class="video" controls muted autoplay></video>
-<video id="video-4" class="video" controls muted autoplay></video>
-<script>
-    initVideo(
+    <img class="btn-close" src="icons/close.svg" />
+
+    <div class="controls">
+      <div class="control">
+        <img src="icons/brightness.svg" alt="Brightness" class="control-icon" />
+        <input
+          type="range"
+          class="input-horizontal"
+          id="brightness"
+          min="0"
+          max="2"
+          step="0.1"
+        />
+      </div>
+      <div class="control">
+        <img src="icons/contrast.svg" alt="Contrast" class="control-icon" />
+        <input type="range" class="input-horizontal" id="contrast" min="0"
+        max="2" step="0.1" = />
+      </div>
+      <div class="control">
+        <img src="icons/volume.svg" alt="Volume" class="control-icon" />
+        <div class="diagram">
+          <div class="diagram-level"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      initVideo(
         document.getElementById('video-1'),
         'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fsosed%2Fmaster.m3u8'
-    );
+      );
 
-    initVideo(
+      initVideo(
         document.getElementById('video-2'),
         'http://localhost:9191/live?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fstairs%2Fmaster.m3u8'
-    );
+      );
 
-    initVideo(
+      initVideo(
         document.getElementById('video-3'),
         'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fdog%2Fmaster.m3u8'
-    );
+      );
 
-    initVideo(
+      initVideo(
         document.getElementById('video-4'),
         'http://localhost:9191/live?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fstreet%2Fmaster.m3u8'
-    );
+      );
 
-</script>
+      const videoFrames = document.querySelectorAll('.video-container');
+      const backToPreview = document.querySelector('.btn-close');
+      const controls = document.querySelector('.controls');
+      const controlInputs = [];
 
+      controlInputs.push(document.getElementById('brightness'));
+      controlInputs.push(document.getElementById('contrast'));
 
-</body>
+      videoFrames.forEach((frame) => {
+        frame.addEventListener('click', (event) => {
+          const currentVideo = event.target;
+
+          if (currentVideo.classList.contains('video_full')) return;
+
+          const pos = event.target.getBoundingClientRect();
+
+          currentVideo.style.transform = `translate(${-pos.left}px, ${-pos.top}px)`;
+          currentVideo.style.zIndex = '10';
+          currentVideo.classList.add('video_full');
+
+          backToPreview.style.opacity = '1';
+          controls.style.opacity = '1';
+
+          controlInputs.forEach((item) => {
+            item.addEventListener('input', () => {
+              const brightness = controlInputs[0].value;
+              const contrast = controlInputs[1].value;
+              currentVideo.style.filter = `brightness(${brightness}) contrast(${contrast})`;
+            });
+          });
+        });
+      });
+
+      backToPreview.addEventListener('click', () => {
+        const fullVideo = document.querySelector('.video_full');
+
+        fullVideo.classList.remove('video_full');
+        fullVideo.style.transform = 'translate(0px, 0px)';
+        fullVideo.style.zIndex = '0';
+        backToPreview.style.opacity = '0';
+        controls.style.opacity = '0';
+      });
+    </script>
+  </body>
 </html>
