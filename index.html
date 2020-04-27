@@ -52,8 +52,8 @@
       </div>
       <div class="control">
         <img src="icons/volume.svg" alt="Volume" class="control-icon" />
-        <div class="diagram">
-          <div class="diagram-level"></div>
+        <div class="volume">
+          <div class="volume-level" id="volume-level"></div>
         </div>
       </div>
     </div>
@@ -78,19 +78,24 @@
         'http://localhost:9191/live?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fstreet%2Fmaster.m3u8'
       );
 
-      const videoFrames = document.querySelectorAll('.video-container');
+      const videoFrames = document.querySelectorAll('.video');
       const backToPreview = document.querySelector('.btn-close');
       const controls = document.querySelector('.controls');
+      const volumeLevel = document.getElementById('volume-level');
       const controlInputs = [];
 
       controlInputs.push(document.getElementById('brightness'));
       controlInputs.push(document.getElementById('contrast'));
 
       videoFrames.forEach((frame) => {
+        let source, audioCtx, streamData, analyser;
+
         frame.addEventListener('click', (event) => {
-          const currentVideo = event.target;
+          const currentVideo = event.currentTarget;
+          controls.style.display = 'flex';
 
           if (currentVideo.classList.contains('video_full')) return;
+          currentVideo.muted = false;
 
           const pos = event.target.getBoundingClientRect();
 
@@ -98,8 +103,32 @@
           currentVideo.style.zIndex = '10';
           currentVideo.classList.add('video_full');
 
+          if (audioCtx === undefined) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 32;
+            analyser.connect(audioCtx.destination);
+
+            source = audioCtx.createMediaElementSource(currentVideo);
+            source.connect(analyser);
+
+            streamData = new Uint8Array(analyser.frequencyBinCount);
+          }
+          // console.log(source);
+
           backToPreview.style.opacity = '1';
-          controls.style.opacity = '1';
+          backToPreview.style.display = 'block';
+
+          backToPreview.addEventListener('click', () => {
+            currentVideo.muted = true;
+
+            currentVideo.classList.remove('video_full');
+            currentVideo.style.transform = 'translate(0px, 0px)';
+            currentVideo.style.zIndex = '0';
+            backToPreview.style.display = 'none';
+            controls.style.display = 'none';
+          });
 
           controlInputs.forEach((item) => {
             item.addEventListener('input', () => {
@@ -108,17 +137,21 @@
               currentVideo.style.filter = `brightness(${brightness}) contrast(${contrast})`;
             });
           });
+
+          function getVolume() {
+            analyser.getByteFrequencyData(streamData);
+            // console.log(streamData);
+            return streamData.reduce((prev, curr) => prev + curr, 0) / 64;
+          }
+
+          function showLevel() {
+            const volume = getVolume();
+            volumeLevel.style.width = `calc(${volume}px * 2)`;
+
+            requestAnimationFrame(showLevel);
+          }
+          showLevel();
         });
-      });
-
-      backToPreview.addEventListener('click', () => {
-        const fullVideo = document.querySelector('.video_full');
-
-        fullVideo.classList.remove('video_full');
-        fullVideo.style.transform = 'translate(0px, 0px)';
-        fullVideo.style.zIndex = '0';
-        backToPreview.style.opacity = '0';
-        controls.style.opacity = '0';
       });
     </script>
   </body>
