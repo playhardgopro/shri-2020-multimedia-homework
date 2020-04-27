@@ -40,15 +40,15 @@
           type="range"
           class="input-horizontal"
           id="brightness"
-          min="0"
+          min="0.05"
           max="2"
-          step="0.1"
+          step="0.05"
         />
       </div>
       <div class="control">
         <img src="icons/contrast.svg" alt="Contrast" class="control-icon" />
-        <input type="range" class="input-horizontal" id="contrast" min="0"
-        max="2" step="0.1" = />
+        <input type="range" class="input-horizontal" id="contrast" min="0.05"
+        max="2" step="0.05" = />
       </div>
       <div class="control">
         <img src="icons/volume.svg" alt="Volume" class="control-icon" />
@@ -92,16 +92,19 @@
 
         frame.addEventListener('click', (event) => {
           const currentVideo = event.currentTarget;
+          const container = currentVideo.closest('.video-container');
           controls.style.display = 'flex';
 
-          if (currentVideo.classList.contains('video_full')) return;
+          if (container.classList.contains('video_full')) return;
           currentVideo.muted = false;
 
           const pos = event.target.getBoundingClientRect();
 
-          currentVideo.style.transform = `translate(${-pos.left}px, ${-pos.top}px)`;
-          currentVideo.style.zIndex = '10';
-          currentVideo.classList.add('video_full');
+          container.style.transform = `translate(${-pos.left}px, ${-pos.top}px)`;
+          container.style.zIndex = '10';
+
+          // currentVideo.classList.add('video_full');
+          container.classList.add('video_full');
 
           if (audioCtx === undefined) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -123,9 +126,9 @@
           backToPreview.addEventListener('click', () => {
             currentVideo.muted = true;
 
-            currentVideo.classList.remove('video_full');
-            currentVideo.style.transform = 'translate(0px, 0px)';
-            currentVideo.style.zIndex = '0';
+            container.classList.remove('video_full');
+            container.style.transform = 'translate(0px, 0px)';
+            container.style.zIndex = '0';
             backToPreview.style.display = 'none';
             controls.style.display = 'none';
           });
