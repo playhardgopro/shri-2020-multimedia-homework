@@ -58,24 +58,26 @@
       </div>
     </div>
     <script>
+      const ip = '192.168.1.5';
+
       initVideo(
         document.getElementById('video-1'),
-        'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fsosed%2Fmaster.m3u8'
+        `http://${ip}:9191/master?url=http://${ip}:3102/streams/sosed/master.m3u8`
       );
 
       initVideo(
         document.getElementById('video-2'),
-        'http://localhost:9191/live?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fstairs%2Fmaster.m3u8'
+        `http://${ip}:9191/live?url=http://${ip}:3102/streams/stairs/master.m3u8`
       );
 
       initVideo(
         document.getElementById('video-3'),
-        'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fdog%2Fmaster.m3u8'
+        `http://${ip}:9191/master?url=http://${ip}:3102/streams/dog/master.m3u8`
       );
 
       initVideo(
         document.getElementById('video-4'),
-        'http://localhost:9191/live?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fstreet%2Fmaster.m3u8'
+        `http://${ip}:9191/live?url=http://${ip}:3102/streams/street/master.m3u8`
       );
 
       const videoFrames = document.querySelectorAll('.video');
